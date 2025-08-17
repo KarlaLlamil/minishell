@@ -1,57 +1,52 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   tokens.c                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: karlarod <karlarod@student.42madrid.com    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/08/17 19:58:04 by karlarod          #+#    #+#             */
+/*   Updated: 2025/08/17 20:00:16 by karlarod         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include <tokens.h>
 
-bool is_ifs(char c)
+
+void	lexer_destroy_tokens(t_token **tokens)
 {
-	if (c == ' ' || c == '\t')
-		return (true);
-	else
-		return (false);
+	
 }
 
-t_token_type is_operator(char *c)
+void	lexer_handle_error(t_arg_lexer *lexer)
 {
-	if (*c == '|' && *(c + 1) != '|')
-		return (PIPE);
-	else if (*c == '|' && *(c + 1) == '|')
-		return(OR_IF);
-	else if (c == '&'
-	 || c == '(' || c == ')')
-		return (true);
-	else
-		return (false);
+
+}
+void	lexer_make_token(t_arg_lexer *lexer)
+{
+
 }
 
-t_token	get_token(char *start, char *line, int j)
+void lexer_init(t_arg_lexer	*lexer, char *line)
 {
-	if (line[j])
+	lexer->line = line;
+	lexer->size = 32;
+	lexer->tokens = malloc(32*sizeof(t_token));
+	if (lexer->tokens != NULL)
+		lexer->status = LEX_ERR_ALLOC;
 }
 
-t_token	*tokenize_lines(char *line)
+t_token	**tokenize_line(char	*line)
 {
-	t_lexer_state	state;
-	t_token			*tokens;
-	char			*start_token;
-	int				i;
-	int				j;
+	t_arg_lexer	lexer;
 
-	i = 0;
-	j = 0;
-	tokens = malloc(sizeof(t_token)*32);
-	state = (t_lexer_state){};
-
-	while (line[j] != '\0')
+	lexer = (t_arg_lexer){};
+	lexer_init(&lexer, line);
+	if(lexer.exit_status != LEX_OK)
+		return(lexer_handle_error(&lexer), NULL);
+	while (lexer.status == LEX_OK && lexer.previous_token != TOKEN_EOF)
 	{
-		if (state.in_token == false && is_ifs(line[j]) == false && is_operator(&line[j]) == false)
-		{
-			state.in_token = true;
-			start_token = &line[j];
-		}
-		else if (state.in_token == true && (is_ifs(line[j]) == true || is_operator(&line[j]) == true) )
-			tokens[i] = get_token(start_token, line, j);
-		if (line[j] == '"')
-			state.in_double_quote = true;
-		else if (line[j] == '\'')
-			state.in_single_quote = true;
+		
 	}
 
 }

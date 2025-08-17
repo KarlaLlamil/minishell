@@ -1,0 +1,14 @@
+#ifndef MINISHELL_H
+# define MINISHELL_H
+
+# include <stdio.h>
+# include <stdlib.h>
+# include <readline/readline.h>
+# include <readline/history.h>
+# include <strings.h>
+# include <wait.h>
+# include <sys/types.h>
+# include <unistd.h>
+# include <limits.h>
+
+#endif
