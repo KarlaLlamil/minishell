@@ -5,7 +5,7 @@
 # include <stdbool.h>
 # include <stddef.h>
 # define IFS " \t\n"
-# define OPERATORS "<>|&()"
+# define OPERATORS "<>|&()$"
 
 typedef enum	e_lex_exit_status
 {
@@ -34,6 +34,7 @@ typedef enum	e_token_type
 	TOKEN_L_PAREN,
 	TOKEN_R_PAREN,
 	TOKEN_UNKNOWN,
+	TOKEN_DOLLAR,
 	TOKEN_EOF
 
 }	t_token_type;
@@ -84,5 +85,6 @@ void	lexer_operator_state(t_arg_lexer *lexer);
 void	lexer_word_state(t_arg_lexer *lexer);
 void	lexer_handle_error(t_arg_lexer *lexer);
 void	lexer_destroy_tokens(t_arg_lexer *lexer);
+void	print_tokens(t_TO *lexer);
 
 #endif

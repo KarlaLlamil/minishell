@@ -6,7 +6,7 @@
 /*   By: karlarod <karlarod@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 19:58:04 by karlarod          #+#    #+#             */
-/*   Updated: 2025/08/17 20:00:16 by karlarod         ###   ########.fr       */
+/*   Updated: 2025/08/19 19:34:14 by karlarod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,10 +71,11 @@ void	lexer_make_token(t_arg_lexer *lexer, t_token_type cur_token)
 		lexer_handle_error(lexer);
 		return;
 	}
-	if (ft_strchr(OPERATORS, *lexer->start_word) == NULL)
-		len = (lexer->line + lexer->pos) - lexer->start_word;
-	else if ()
-	lexer->tokens[lexer->count]->value = ft_substr(value, 0, len);
+	len = (lexer->line + lexer->pos) - lexer->start_word - 1;
+	lexer->tokens[lexer->count]->value = ft_substr(lexer->start_word, 0, len);
+	lexer->tokens[lexer->count]->type = cur_token;
+	lexer->start_word = NULL;
+	lexer->previous_token = cur_token;
 	++lexer->count;
 }
 
