@@ -11,10 +11,24 @@
 /* ************************************************************************** */
 
 #include "tokens.h"
+#include "Libft/libft.h"
 
 void	lexer_default_state(t_arg_lexer *lexer)
 {
+	bool	comment;
 
+	if (lexer->start_word != NULL)
+		lexer_make_token(&lexer, lexer->start_word);
+	comment = false;
+	while (lexer->line[lexer->pos] != '\0')
+	{
+		if (lexer->line[lexer->pos] == '#')
+			comment = true;
+		if (comment == true || ft_strchr(IFS, lexer->line[lexer->pos] != NULL))
+			++lexer->pos;
+		else
+			break;
+	}
 }
 
 void	lexer_squote_state(t_arg_lexer *lexer)

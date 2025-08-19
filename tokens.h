@@ -4,6 +4,8 @@
 
 # include <stdbool.h>
 # include <stddef.h>
+# define IFS " \t\n"
+# define OPERATORS "<>|&()"
 
 typedef enum	e_lex_exit_status
 {
@@ -13,6 +15,7 @@ typedef enum	e_lex_exit_status
 	LEX_ERR_UNCLOSED_QUOTE,
 	LEX_ERR_UNCLOSED_PAREN,
 	LEX_ERR_UNEXPECTED_EOF,
+	LEX_ERR_GRAMMAR
 
 }	t_lex_exit_status;
 
@@ -71,14 +74,15 @@ typedef struct	s_arg_lexer
 }	t_arg_lexer;
 
 t_token	**tokenize_line(char	*line);
+void	token_realloc(t_arg_lexer	*lexer);
 void	lexer_init(t_arg_lexer	*lexer, char *line);
-void	lexer_make_token(t_arg_lexer *lexer);
+void	lexer_make_token(t_arg_lexer *lexer, t_token_type cur_token);
 void	lexer_default_state(t_arg_lexer *lexer);
 void	lexer_squote_state(t_arg_lexer *lexer);
 void	lexer_dquote_state(t_arg_lexer *lexer);
 void	lexer_operator_state(t_arg_lexer *lexer);
 void	lexer_word_state(t_arg_lexer *lexer);
 void	lexer_handle_error(t_arg_lexer *lexer);
-void	lexer_destroy_tokens(t_token **tokens);
+void	lexer_destroy_tokens(t_arg_lexer *lexer);
 
 #endif

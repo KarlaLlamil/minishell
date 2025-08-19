@@ -1,0 +1,37 @@
+
+redirection = [fd], '<' , WORD  |   [fd], '>', WORD 
+			| [fd], '>>', WORD;
+
+fd = {digit};
+
+here_doc = [fd], '<<', delimiter, '\n',
+						content,
+			delimiter, '\n';
+
+delimiter = WORD;
+
+io_redirection = redirection | here_doc;
+
+assignment = NAME, '=', WORD;
+
+NAME =  ('_' | letter), {letter | digit | '_'};
+
+simple_cmd = {io_redirection}, {assignment}, WORD, {WORD}, {io_redirection};
+
+compound_command = subshell;
+
+cmd = simple_cmd | compound_command;
+
+pipeline = cmd, {'|', cmd}  
+		| pipeline, '|', cmd;
+
+
+list = pipeline, '&&', pipeline 
+	| pipeline, '||', pipeline
+	| pipeline; 
+
+subshell = '(', list, ')';
+
+digit = '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' ;
+
+letter = 'a' | 'b' | 'c' | ... | 'z' | 'A' | 'B' | ... | 'Z' ;
