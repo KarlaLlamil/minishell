@@ -10,32 +10,36 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <tokens.h>
+#include "tokens.h"
 #include "Libft/libft.h"
+#include <stdio.h>
 
-void	lexer_destroy_tokens(t_arg_lexer *lexer)
+void	lexer_destroy_tokens(t_token **tokens)
 {
-	while (lexer->count != 0)
+	size_t	i;
+
+	i = 0;
+	while (tokens[i] != NULL)
 	{
-		--lexer->count;
-		if (lexer->tokens[lexer->count]->value != NULL)
-			free(lexer->tokens[lexer->count]->value);
-		free(lexer->tokens[lexer->count]);
+		if (tokens[i] != NULL)
+			free(tokens[i]->value);
+		free(tokens[i]);
+		i++;
 	}
-	free(lexer->tokens);
-	lexer->tokens = NULL;
+	free(tokens);
+	tokens = NULL;
 }
 
 void	lexer_handle_error(t_arg_lexer *lexer)
 {
 	if (lexer->tokens != NULL)
-		lexer_destroy_tokens(lexer);
+		lexer_destroy_tokens(lexer->tokens);
 }
 
 void	token_realloc(t_arg_lexer *lexer)
 {
 	t_token	**reallocated_tokens;
-	int		i;
+	size_t		i;
 
 	lexer->size = 2 * lexer->size;
 	i = 0;
@@ -58,7 +62,7 @@ void	lexer_make_token(t_arg_lexer *lexer, t_token_type cur_token)
 	size_t	len;
 
 	len = 0;
-	if (lexer->count == lexer->size)
+	if (lexer->count == lexer->size - 1)
 	{
 		token_realloc(lexer);
 		if (lexer->status == LEX_ERR_ALLOC)
@@ -71,12 +75,16 @@ void	lexer_make_token(t_arg_lexer *lexer, t_token_type cur_token)
 		lexer_handle_error(lexer);
 		return;
 	}
-	len = (lexer->line + lexer->pos) - lexer->start_word - 1;
+	len = (lexer->line + lexer->pos) - lexer->start_word ;
 	lexer->tokens[lexer->count]->value = ft_substr(lexer->start_word, 0, len);
 	lexer->tokens[lexer->count]->type = cur_token;
 	lexer->start_word = NULL;
-	lexer->previous_token = cur_token;
+	if(lexer->line[lexer->pos] == '\0')
+		lexer->previous_token = TOKEN_EOF;
+	else
+		lexer->previous_token = cur_token;
 	++lexer->count;
+	lexer->tokens[lexer->count] = NULL;
 }
 
 void lexer_init(t_arg_lexer	*lexer, char *line)
@@ -84,8 +92,37 @@ void lexer_init(t_arg_lexer	*lexer, char *line)
 	lexer->line = line;
 	lexer->size = 32;
 	lexer->tokens = malloc(32 * sizeof(t_token));
-	if (lexer->tokens != NULL)
+	if (lexer->tokens == NULL)
 		lexer->status = LEX_ERR_ALLOC;
+}
+
+void	print_tokens(t_token	**tokens)
+{
+	int		i;
+
+	i = 0;
+	static const char *token_type_str[] = {
+		"WORD",
+		"PIPE",
+		"AND_IF",
+		"OR_IF",
+		"ASSIGNMENT",
+		"REDIR_IN",
+		"REDIR_OUT",
+		"APPEND",
+		"HERE_DOC",
+		"DELIMITER",
+		"L_PARENTHESES",
+		"R_PARENTHESES",
+		"UNKOWN",
+		"DOLLAR",
+		"TOK_EOF"
+	};
+	while ( tokens[i] != NULL)
+	{
+		printf("type = %s\t value = %s\n", token_type_str[tokens[i]->type], tokens[i]->value);
+		++i;
+	}
 }
 
 t_token	**tokenize_line(char	*line)
@@ -98,7 +135,7 @@ t_token	**tokenize_line(char	*line)
 		return(lexer_handle_error(&lexer), NULL);
 	while (lexer.status == LEX_OK && lexer.previous_token != TOKEN_EOF)
 	{
-		if (ft_strchr(IFS, line[lexer.pos]) != NULL || line[lexer.pos] == "#")
+		if (ft_strchr(IFS, line[lexer.pos]) != NULL || line[lexer.pos] == '#' || line[lexer.pos] == '\0')
 			lexer_default_state(&lexer);
 		else if (ft_strchr (OPERATORS, line[lexer.pos]) != NULL)
 			lexer_operator_state(&lexer);

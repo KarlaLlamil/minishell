@@ -1,0 +1,2 @@
+The current working directory is: /home/karla/Documents/42_Cursus/Minishell
+You are logged in as: karla

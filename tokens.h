@@ -53,6 +53,8 @@ typedef struct s_token
 {
 	t_token_type	type;
 	char			*value;
+	int				fd;
+
 }	t_token;
 
 /* **tokens -> array of tokens fixed size allocated
@@ -84,7 +86,7 @@ void	lexer_dquote_state(t_arg_lexer *lexer);
 void	lexer_operator_state(t_arg_lexer *lexer);
 void	lexer_word_state(t_arg_lexer *lexer);
 void	lexer_handle_error(t_arg_lexer *lexer);
-void	lexer_destroy_tokens(t_arg_lexer *lexer);
-void	print_tokens(t_TO *lexer);
+void	lexer_destroy_tokens(t_token **tokens);
+void	print_tokens(t_token **tokens);
 
 #endif

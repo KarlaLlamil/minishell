@@ -1,15 +1,25 @@
 #include "tokens.h"
+#include "minishell.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <readline/readline.h>
+#include <readline/history.h>
+#include <strings.h>
+#include <wait.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <limits.h>
+#include "Libft/libft.h"
 
 int	main(void)
 {
 	char		*line;
-	t_token		*tokens;
+	t_token		**tokens;
 	int 		i = 0;
 	pid_t		pid;
 	int			status;
 	extern char	**environ;
 	char	*args[] = {"clear", NULL};
-	char	*argsls[] = {"ls", NULL};
 
 	pid = fork();
 	if (pid == 0)
@@ -25,7 +35,7 @@ int	main(void)
 		line = readline("$: ");
 		tokens = tokenize_line(line);
 		print_tokens(tokens);
-		free_tokens(tokens);
+		lexer_destroy_tokens(tokens);
 		free(line);
 	}
 }

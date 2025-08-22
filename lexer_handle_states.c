@@ -27,25 +27,26 @@ void	lexer_default_state(t_arg_lexer *lexer)
 	{
 		if (lexer->line[lexer->pos] == '#')
 			comment = true;
-		if (comment == true || ft_strchr(IFS, lexer->line[lexer->pos] != NULL))
+		if (comment == true || ft_strchr(IFS, lexer->line[lexer->pos]) != NULL)
 			++lexer->pos;
 		else
-			break;
+			return;
 	}
+	lexer->previous_token = TOKEN_EOF;
 }
 
 void	lexer_squote_state(t_arg_lexer *lexer)
 {
-	lexer->state = LEX_IN_SQUOTES;
 	if (lexer->start_word == NULL)
 		lexer->start_word = &lexer->line[lexer->pos];
 	while (lexer->line[lexer->pos] != '\0')
 	{
-		if (lexer->line[lexer->pos] == '\'')
+		if (lexer->line[lexer->pos] == '\'' && lexer->state != LEX_IN_SQUOTES)
+			lexer->state = LEX_IN_SQUOTES;
+		else if (lexer->line[lexer->pos] == '\'' && lexer->state == LEX_IN_SQUOTES)
 		{
 			lexer->state = LEX_IN_WORD;
-			lexer_word_state(lexer);
-			break;
+			return;
 		}
 		++lexer->pos;
 	}
@@ -53,15 +54,15 @@ void	lexer_squote_state(t_arg_lexer *lexer)
 
 void	lexer_dquote_state(t_arg_lexer *lexer)
 {
-	lexer->state = LEX_IN_DQUOTES;
 	if (lexer->start_word == NULL)
 		lexer->start_word = &lexer->line[lexer->pos];
 	while (lexer->line[lexer->pos] != '\0')
 	{
-		if (lexer->line[lexer->pos] == '"')
+		if (lexer->line[lexer->pos] == '"' && lexer->state != LEX_IN_DQUOTES)
+			lexer->state = LEX_IN_DQUOTES;
+		else if (lexer->line[lexer->pos] == '"' && lexer->state == LEX_IN_DQUOTES)
 		{
 			lexer->state = LEX_IN_WORD;
-			lexer_word_state(lexer);
 			return;
 		}
 		else if (lexer->line[lexer->pos] == '$')
@@ -70,10 +71,9 @@ void	lexer_dquote_state(t_arg_lexer *lexer)
 			if (lexer->line[lexer->pos] == '\0')
 				lexer->previous_token = TOKEN_EOF;
 			else
-				lexer->start_word = lexer->line[lexer->pos];
+				lexer->start_word = &lexer->line[lexer->pos];
 		}
-		else
-			++lexer->pos;
+		++lexer->pos;
 	}
 }
 
@@ -81,35 +81,38 @@ void	lexer_operator_state(t_arg_lexer *lexer)
 {
 	lexer->state = LEX_IN_OPERATOR;
 	if (lexer->start_word != NULL)
+	{
+		if (ft_strchr("<>", lexer->line[lexer->pos]) && )
 		lexer_make_token(lexer, TOKEN_WORD);
+	}
 	if (lexer->line[lexer->pos ] != lexer->line[lexer->pos + 1])
 	{
-		lexer->start_word == lexer->line[lexer->pos];
+		lexer->start_word = &lexer->line[lexer->pos];
 		++lexer->pos;
-		if (lexer->start_word == '|')
+		if (*lexer->start_word == '|')
 			lexer_make_token(lexer, TOKEN_PIPE);
-		else if (lexer->start_word == '<')
+		else if (*lexer->start_word == '<')
 			lexer_make_token(lexer, TOKEN_REDIR_IN);
-		else if (lexer->start_word == '>')
+		else if (*lexer->start_word == '>')
 			lexer_make_token(lexer, TOKEN_REDIR_OUT);
-		else if (lexer->start_word == '(')
+		else if (*lexer->start_word == '(')
 			lexer_make_token(lexer, TOKEN_L_PAREN);
-		else if (lexer->start_word == ')')
+		else if (*lexer->start_word == ')')
 			lexer_make_token(lexer, TOKEN_R_PAREN);
-		else if (lexer->start_word == '$')
+		else if (*lexer->start_word == '$')
 			lexer_make_token(lexer, TOKEN_DOLLAR);
 	}
 	else
 	{
-		lexer->start_word == lexer->line[lexer->pos];
+		lexer->start_word = &lexer->line[lexer->pos];
 		lexer->pos = lexer->pos + 2;
-		if (lexer->start_word == '|')
+		if (*lexer->start_word == '|')
 			lexer_make_token(lexer, TOKEN_OR_IF);
-		else if (lexer->start_word == '<')
+		else if (*lexer->start_word == '<')
 			lexer_make_token(lexer, TOKEN_HERE_DOC); //FALTA TRATAR EL HEREDOC
-		else if (lexer->start_word == '>')
+		else if (*lexer->start_word == '>')
 			lexer_make_token(lexer, TOKEN_APPEND);
-		else if (lexer->start_word == '(&')
+		else if (*lexer->start_word == '&')
 			lexer_make_token(lexer, TOKEN_AND_IF);
 	}
 }
@@ -118,21 +121,15 @@ void	lexer_word_state(t_arg_lexer *lexer)
 {
 	lexer->state = LEX_IN_WORD;
 	if (lexer->start_word == NULL)
-		lexer->start_word = &lexer[lexer->pos];
+		lexer->start_word = &lexer->line[lexer->pos];
 	while (lexer->line[lexer->pos] != '\0')
 	{
 		if (ft_strchr(IFS, lexer->line[lexer->pos]) != NULL || ft_strchr(OPERATORS, lexer->line[lexer->pos]) != NULL)
 			return;
 		if (lexer->line[lexer->pos] == '\'')
-		{
-			lexer->state = LEX_IN_SQUOTES;
 			lexer_squote_state(lexer);
-		}
 		else if (lexer->line[lexer->pos] == '"')
-		{
-			lexer->state = LEX_IN_DQUOTES;
 			lexer_dquote_state(lexer);
-		}
 		++lexer->pos;
 	}
 	
